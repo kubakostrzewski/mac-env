@@ -1,0 +1,8 @@
+alias nt="npm run test"
+alias ns="npm run start"
+alias nsd="npm run start:dev"
+alias nb="npm run build"
+alias gaac="gaa && gc"
+alias gaap="gaac && ggpush"
+alias gaac!="gaa && gcn!"
+alias gaap!="gaac! && git push -f origin "$(git_current_branch)""
