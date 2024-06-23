@@ -1,41 +1,53 @@
-PLUGINS_DIR="/Users/jakubkostrzewski/repo/private/mac-env/zsh-plugins/"
+alias ea="ws $(dirname "$0")/aliases.zsh"
+
 CHROME_DIR="/Applications/Google\ Chrome.app"
+
+#postgres
+alias pg-local="export PGPASSWORD=postgres && pgcli -U postgres -h localhost -p 5432"
 
 #chrome
 alias ch="open $CHROME_DIR"
 alias chga='ch https://github.com/sky-distribution/$(basename $(pwd))/actions'
+alias og='ch https://github.com/sky-distribution/$(basename $(pwd))'
+alias opr='ch https://github.com/sky-distribution/$(basename $(pwd))/pulls'
 
-#npm
-alias nr="nu && npm run"
-alias nu="nvm use"
-ni() {
-  nu
-  PNPM_LOCK_FILE=pnpm-lock.yaml
-  NPM_LOCK_FILE=package-lock.json
-  if test -f "$PNPM_LOCK_FILE"; then
-      echo "$PNPM_LOCK_FILE exists: using pnpm to install packages"
-      pnpm install
-  elif test -f "$NPM_LOCK_FILE"; then
-      echo "$NPM_LOCK_FILE exists: using npm to install packages"
-      npm install
-  else
-    echo "ERROR: no pnpm-lock.yaml and package-lock.json files found"
-  fi
+#npm, pnpm
+alias t="npx tsc"
+alias j="npx jest"
+alias ju="npx jest -u"
+alias jf="npx jest -f"
+getPackageManager() {
+  if test -f "pnpm-lock.yaml"; then
+        echo 'pnpm'
+    elif test -f "package-lock.json"; then
+        echo 'npm'
+    elif test -f "yarn.lock"; then
+        echo 'yarn'
+    else
+      echo "ERROR: no pnpm-lock.yaml, package-lock.json and yarn.lock files found" > /dev/stdout
+    fi
 }
 
+alias nu="nvm use"
 
+nr(){
+  echo "nu && $(getPackageManager) run"
+}
+alias ni='eval "nu && $(getPackageManager) install $1"'
+alias pa="nu && pnpm add"
+alias pad="nu && pnpm add -D"
 alias nil="ni --legacy-peer-deps"
-alias nt="nr test"
-alias ntf="npx jest -f"
-alias ntu="nr test:u"
-alias ns="nr start"
-alias nsm="nr start:mocked"
-alias nsd="nr start:dev"
-alias nb="nr build"
-alias na="npm audit"
-alias naf="npm audit fix"
-alias nl="nr -s lint --quiet"
-alias nlf="nr -s lint:fix"
+alias nt='eval "t && $(nr) test"'
+alias ntf="nt -f"
+alias ntu='eval "$(nr) test:u"'
+alias ns='eval "$(nr) start"'
+alias nsm='eval "$(nr) start:mocked"'
+alias nsd='eval "$(nr) start:dev"'
+alias nb='eval "$(nr) build"'
+alias na='eval "$(getPackageManager) audit"'
+alias naf='eval "$(getPackageManager) audit fix"'
+alias nl='eval "$(nr) -s lint --quiet"'
+alias nlf='eval "$(nr) -s lint:fix --quiet"'
 
 #webstorm
 alias ws="/Users/jakubkostrzewski/Library/Application\ Support/JetBrains/Toolbox/scripts/webstorm"
@@ -46,20 +58,10 @@ alias clnm="rm -rf node_modules && ni"
 alias clnm!="clnm && rm package-lock.json && ni"
 
 #bash
-alias ea="ws $PLUGINS_DIR/aliases.zsh"
-alias eg="ws $PLUGINS_DIR/git.zsh"
-alias ei="ws $PLUGINS_DIR/init-plugins.zsh"
 alias ll="ls -al"
-
 d64 () { echo $1 | base64 --decode; }
 e64 () { echo $1 | base64; }
-
-REPO_DIR=/Users/jakubkostrzewski/repo/
-fq=${REPO_DIR}fnol-questionnarie
-
-#bee
-alias cfq="cd ${fq}"
-alias wfq="cfq && ws ."
+alias cls='printf "\033c"'
 
 #GH
 triggerGhWorkflowFile() {
@@ -128,4 +130,14 @@ gen_pdf () {
   fi
 }
 
+#typeorm
+alias pmr="nu && pnpm migration:run"
+alias pmg='nu && pnpm migration:run && pnpm migration:generate && pnpm migration:run'
 
+alias nmg="nu && npm run migration:run && npm run migration:generate && npm run migration:run"
+alias nmr="nu && npm migration:run"
+
+#jwt
+function jwt-decode() {
+  jq -R 'split(".") | .[0],.[1] | @base64d | fromjson' <<< $1
+}

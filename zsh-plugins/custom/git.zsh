@@ -1,3 +1,5 @@
+alias eg="ws $(dirname "$0")/git.zsh"
+
 git_current_branch() {
   current_branch=echo git branch --show-current
   echo $current_branch
@@ -32,7 +34,7 @@ alias g_create_release_branch="gcbr release/$1"
 
 alias gaac="gaa && gcm"
 gaap() { gaac $1 && gpu; }
-gaapn () { gaac $1 && gpun; }
+gaapn () { gaac $1 --no-verify && gpun; }
 gcl() { git clone git@github:sky-distribution/$1.git }
 
 alias cb="git_current_branch | pbcopy"
@@ -46,4 +48,9 @@ gstatus() {
   fi
 }
 
+alias gco="git checkout"
+alias gcd="gco development"
+grh() { git reset --hard HEAD~$1 }
+alias grhh="grh 10"
+alias gl="git pull"
 alias gcdr="gstatus && gcd && grhh && gl && ni"
